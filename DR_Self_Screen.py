@@ -1,5 +1,7 @@
 import streamlit as st
+import pandas as pd
 from Question import questions
+from datetime import datetime
 
 # Custom CSS for styling
 page_bg_img = f"""
@@ -30,6 +32,24 @@ h1, h2, h3, h4 {{
 
 st.markdown(page_bg_img, unsafe_allow_html=True)
 
+# File to store the results
+RESULTS_FILE = "results.csv"
+
+# Function to save results
+def save_results(score, risk_level, answers):
+    # Load existing data
+    try:
+        results_df = pd.read_csv(RESULTS_FILE)
+    except FileNotFoundError:
+        results_df = pd.DataFrame(columns=["Date", "Score", "Risk Level", "Answers"])
+
+    # Append new data
+    new_result = pd.DataFrame([[datetime.now().strftime("%Y-%m-%d %H:%M:%S"), score, risk_level, str(answers)]], columns=["Date", "Score", "Risk Level", "Answers"])
+    results_df = pd.concat([results_df, new_result], ignore_index=True)
+
+    # Save to CSV
+    results_df.to_csv(RESULTS_FILE, index=False)
+
 # Calculates risk based on user input
 def calculate_risk_level(score):
     if score <= 5:
@@ -48,6 +68,7 @@ def main():
     if 'current_question' not in st.session_state:
         st.session_state.current_question = 0
         st.session_state.score = 0
+        st.session_state.answers = []
         st.session_state.started = False
 
     # Starting page
@@ -72,6 +93,7 @@ def main():
                 for col, (option, points) in zip(option_cols, question["options"].items()):
                     if col.button(option):
                         st.session_state.score += points
+                        st.session_state.answers.append((question["question"], option))
                         st.session_state.current_question += 1
                         st.experimental_rerun()
 
@@ -79,6 +101,8 @@ def main():
                 if st.session_state.current_question > 0:
                     if st.button("Return"):
                         st.session_state.current_question -= 1
+                        st.session_state.score -= st.session_state.answers[-1][1]
+                        st.session_state.answers.pop()
                         st.experimental_rerun()
 
             with col2:
@@ -95,10 +119,23 @@ def main():
             risk_level = calculate_risk_level(st.session_state.score)
             st.write(f"Risk Level: {risk_level}")
 
+            # Save results to file
+            save_results(st.session_state.score, risk_level, st.session_state.answers)
+
+            # Provide download link for results
+            results_df = pd.read_csv(RESULTS_FILE)
+            st.download_button(
+                label="Download Results",
+                data=results_df.to_csv(index=False).encode('utf-8'),
+                file_name=RESULTS_FILE,
+                mime='text/csv'
+            )
+
             # Restarts questionnaire
             if st.button("Restart"):
                 st.session_state.current_question = 0
                 st.session_state.score = 0
+                st.session_state.answers = []
                 st.session_state.started = False
                 st.experimental_rerun()
 
