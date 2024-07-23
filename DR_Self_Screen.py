@@ -93,16 +93,16 @@ def main():
                 for col, (option, points) in zip(option_cols, question["options"].items()):
                     if col.button(option):
                         st.session_state.score += points
-                        st.session_state.answers.append((question["question"], option))
+                        st.session_state.answers.append((question["question"], option, points))
                         st.session_state.current_question += 1
                         st.experimental_rerun()
 
                 # Return button beneath the options
                 if st.session_state.current_question > 0:
                     if st.button("Return"):
+                        last_answer = st.session_state.answers.pop()
+                        st.session_state.score -= last_answer[2]  # Subtract points
                         st.session_state.current_question -= 1
-                        st.session_state.score -= st.session_state.answers[-1][1]
-                        st.session_state.answers.pop()
                         st.experimental_rerun()
 
             with col2:
