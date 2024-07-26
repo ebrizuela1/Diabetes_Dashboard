@@ -84,20 +84,20 @@ questions = [
      "image":"https://png.pngtree.com/png-vector/20190328/ourmid/pngtree-vector-health-icon-c-png-image_872167.jpg"},
 
     {"category": "Additional Questions", 
-     "question": "Do you smoke or use tobacco products?", 
-     "options": {"Yes": 3, "No": 0, "Not sure": 0}, 
+     "question": "How often do you use tobacco products?", 
+     "options": {"Very Often": 3, "Once in a while": 0, "Never": 0, "Prefer not to answer": 0}, 
      "type":"button",
      "image":"https://toppng.com/uploads/preview/add-new-questions-add-question-icon-1156298351152eixf9qfh.png"},
 
     {"category": "Additional Questions", 
-     "question": "Do you engage in regular physical activity (at least 30 minutes, 3 times a week)?", 
-     "options": {"No": 2, "Yes": 0, "Not sure": 0}, 
+     "question": "Do you engage in regular physical activity?", 
+     "options": {"3-4 times a week": 0, "1-2 times a week": 1, "Less than once a week": 2, "Never": 3, "Not sure": 0}, 
      "type": "button",
      "image":"https://toppng.com/uploads/preview/add-new-questions-add-question-icon-1156298351152eixf9qfh.png"},
 
     {"category": "Additional Questions", 
-     "question": "Do you follow a balanced diet that includes vegetables, fruits, and whole grains?", 
-     "options": {"No": 2, "Yes": 0, "Not sure": 0}, 
+     "question": "How often do you follow a balanced diet that includes vegetables, fruits, and whole grains?", 
+     "options": {"3-4 times a week": 0, "1-2 times a week": 1, "Less than once a week": 2, "Never": 3, "Not sure": 0}, 
      "type": "button",
      "image":"https://toppng.com/uploads/preview/add-new-questions-add-question-icon-1156298351152eixf9qfh.png"},
 
@@ -108,8 +108,8 @@ questions = [
      "image":"https://toppng.com/uploads/preview/add-new-questions-add-question-icon-1156298351152eixf9qfh.png"},
     
     {"category": "Additional Questions", 
-     "question": "Do you drink at least 8 glasses of water daily?", 
-     "options": {"No": 1, "Yes": 0, "Not sure": 0}, 
+     "question": "How many glasses of water do you drink daily?", 
+     "options": {"Less than 4": 1, "4-6": 1, "7-9": 0, "10 or more": 0, "Not sure": 0}, 
      "type":"button",
      "image":"https://toppng.com/uploads/preview/add-new-questions-add-question-icon-1156298351152eixf9qfh.png"},
 ]
