@@ -1,3 +1,5 @@
+import os
+from dotenv import load_dotenv
 import streamlit as st
 import pandas as pd
 from Question import questions  # Ensure this import is correct in your environment
@@ -8,9 +10,19 @@ from fpdf import FPDF  # Ensure you have fpdf installed
 import firebase_admin
 from firebase_admin import credentials, firestore
 
+# Load environment variables from the .env file
+load_dotenv()
+
+# Get the Firebase key path from the environment variable
+firebase_key_path = os.getenv('FIREBASE_KEY_PATH')
+
+# Check if the environment variable is loaded correctly
+if firebase_key_path is None:
+    raise ValueError("FIREBASE_KEY_PATH environment variable not set")
+
 # Initialize Firebase
 if not firebase_admin._apps:
-    cred = credentials.Certificate("/path/to/your/firestore-key.json")  # Ensure the path is correct
+    cred = credentials.Certificate(firebase_key_path)  # Use the environment variable
     firebase_admin.initialize_app(cred)
 db = firestore.client()
 
