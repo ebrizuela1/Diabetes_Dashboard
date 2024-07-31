@@ -1,57 +1,63 @@
 import streamlit as st
 import pandas as pd
-from Question import questions
+from Question import questions  # Ensure this import is correct in your environment
 from datetime import datetime
 import base64
 from io import BytesIO
 from fpdf import FPDF  # Ensure you have fpdf installed
+import firebase_admin
+from firebase_admin import credentials, firestore
+
+# Initialize Firebase
+if not firebase_admin._apps:
+    cred = credentials.Certificate("/path/to/your/firestore-key.json")  # Ensure the path is correct
+    firebase_admin.initialize_app(cred)
+db = firestore.client()
 
 # Custom CSS for styling
-page_bg_img = f"""
+page_bg_img = """
 <style>
-[data-testid="stAppViewContainer"] {{
+[data-testid="stAppViewContainer"] {
     background-color: #FFFFFF;
-}}
-[data-testid="stSidebar"] {{
+}
+[data-testid="stSidebar"] {
     background-color: #43A047;
-}}
-.stButton>button {{
+}
+.stButton>button {
     background-color: #1E88E5;
     color: white;
     border-radius: 5px;
-}}
-.stButton>button:hover {{
+}
+.stButton>button:hover {
     background-color: #FFB300;
     color: black;
-}}
-.stProgress>div>div {{
+}
+.stProgress>div>div {
     background-color: #1E88E5;
-}}
-h1, h2, h3, h4 {{
+}
+h1, h2, h3, h4 {
     color: #1E88E5;
-}}
+}
 </style>
 """
-
 st.markdown(page_bg_img, unsafe_allow_html=True)
 
-# File to store the results
-RESULTS_FILE = "results.csv"
-
-# Function to save results
+# Function to save results to Firestore
 def save_results(score, risk_level, answers):
-    # Load existing data
-    try:
-        results_df = pd.read_csv(RESULTS_FILE)
-    except FileNotFoundError:
-        results_df = pd.DataFrame(columns=["Date", "Score", "Risk Level", "Answers"])
+    # Convert answers to a list of dictionaries
+    answers_dict = [{"question": question, "answer": answer, "points": points} for question, answer, points in answers]
 
-    # Append new data
-    new_result = pd.DataFrame([[datetime.now().strftime("%Y-%m-%d %H:%M:%S"), score, risk_level, str(answers)]], columns=["Date", "Score", "Risk Level", "Answers"])
-    results_df = pd.concat([results_df, new_result], ignore_index=True)
-
-    # Save to CSV
-    results_df.to_csv(RESULTS_FILE, index=False)
+    # Create a document reference
+    doc_ref = db.collection("diabetes_results").document()
+    # Prepare data
+    data = {
+        "date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "score": score,
+        "risk_level": risk_level,
+        "answers": answers_dict
+    }
+    # Set the data in Firestore
+    doc_ref.set(data)
 
 # Calculates risk based on user input
 def calculate_risk_level(score):
@@ -144,7 +150,7 @@ def main():
             risk_level = calculate_risk_level(st.session_state.score)
             st.write(f"Risk Level: {risk_level}")
 
-            # Save results to file
+            # Save results to Firestore
             save_results(st.session_state.score, risk_level, st.session_state.answers)
 
             # Toggle for displaying answers table
@@ -166,12 +172,17 @@ def main():
                 href = f'<a href="data:application/octet-stream;base64,{b64}" download="results.pdf">Download PDF</a>'
                 st.markdown(href, unsafe_allow_html=True)
             else:
-                # Provide download link for results
-                results_df = pd.read_csv(RESULTS_FILE)
+                # Provide download link for results in CSV format
+                results_df = pd.DataFrame([{
+                    "Date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                    "Score": st.session_state.score,
+                    "Risk Level": risk_level,
+                    "Answers": st.session_state.answers
+                }])
                 st.download_button(
                     label="Download Results",
                     data=results_df.to_csv(index=False).encode('utf-8'),
-                    file_name=RESULTS_FILE,
+                    file_name="results.csv",
                     mime='text/csv'
                 )
 
