@@ -99,6 +99,7 @@ def main():
     # Starting page
     if not st.session_state.started:
         st.title("Diabetic Retinopathy Test")
+        st.write("**A diabetes complication that impacts vision. Diabetic retinopathy occurs when high blood sugar levels cause damage to the tiny blood vessels in the retina, the light-sensitive tissue at the back of the eye. Early signs include the appearance of floaters, blurred vision, dark spots, and trouble distinguishing colors. In severe cases, it can lead to blindness.**")
         if st.button("Begin"):
             st.session_state.started = True
             st.experimental_rerun()
